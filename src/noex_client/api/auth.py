@@ -12,7 +12,10 @@ class AuthAPI:
         self._send = send
 
     async def login(self, token: str) -> dict[str, Any]:
-        return await self._send("auth.login", {"token": token})
+        result: dict[str, Any] = await self._send(
+            "auth.login", {"token": token}
+        )
+        return result
 
     async def logout(self) -> None:
         await self._send("auth.logout", {})

@@ -11,7 +11,9 @@ class AuditAPI:
     def __init__(self, send: SendFn) -> None:
         self._send = send
 
-    async def query(self, filter: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+    async def query(
+        self, filter: dict[str, Any] | None = None
+    ) -> list[dict[str, Any]]:
         payload: dict[str, Any] = {}
 
         if filter is not None:
@@ -20,4 +22,5 @@ class AuditAPI:
                     payload[key] = filter[key]
 
         result = await self._send("audit.query", payload)
-        return result["entries"]
+        entries: list[dict[str, Any]] = result["entries"]
+        return entries

@@ -5,8 +5,8 @@ import json
 import logging
 from typing import Any, Callable
 
-import websockets
-import websockets.client
+from websockets.asyncio.client import ClientConnection, connect as ws_connect
+from websockets.exceptions import ConnectionClosed
 
 from ..config import TransportState
 
@@ -28,7 +28,7 @@ class WebSocketTransport:
         self._url = url
         self._connect_timeout_ms = connect_timeout_ms
         self._heartbeat = heartbeat
-        self._ws: websockets.client.ClientConnection | None = None
+        self._ws: ClientConnection | None = None
         self._state: TransportState = "idle"
         self._listeners: dict[str, list[Callable[..., Any]]] = {}
         self._recv_task: asyncio.Task[None] | None = None
@@ -41,7 +41,7 @@ class WebSocketTransport:
     def is_connected(self) -> bool:
         return self._state == "connected"
 
-    # ── Lifecycle ──────────────────────────────────────────────────
+    # -- Lifecycle --------------------------------------------------------
 
     async def connect(self) -> None:
         if self._state in ("connected", "connecting"):
@@ -50,7 +50,7 @@ class WebSocketTransport:
         self._state = "connecting"
         try:
             self._ws = await asyncio.wait_for(
-                websockets.connect(self._url),
+                ws_connect(self._url, ping_interval=None),
                 timeout=self._connect_timeout_ms / 1000,
             )
         except asyncio.TimeoutError:
@@ -89,7 +89,7 @@ class WebSocketTransport:
                 pass
             self._ws = None
 
-    # ── Communication ──────────────────────────────────────────────
+    # -- Communication ----------------------------------------------------
 
     def send(self, data: str) -> None:
         if self._ws is None or self._state != "connected":
@@ -102,7 +102,7 @@ class WebSocketTransport:
             raise ConnectionError("Cannot send — transport is not connected")
         await self._ws.send(data)
 
-    # ── Events ────────────────────────────────────────────────────
+    # -- Events -----------------------------------------------------------
 
     def on(self, event: str, handler: Callable[..., Any]) -> Unsubscribe:
         listeners = self._listeners.setdefault(event, [])
@@ -116,7 +116,7 @@ class WebSocketTransport:
 
         return unsub
 
-    # ── Private ───────────────────────────────────────────────────
+    # -- Private ----------------------------------------------------------
 
     def _emit(self, event: str, *args: Any) -> None:
         for handler in self._listeners.get(event, []):
@@ -134,8 +134,10 @@ class WebSocketTransport:
                 if self._heartbeat and self._handle_ping_pong(data):
                     continue
                 self._emit("message", data)
-        except websockets.ConnectionClosed as e:
-            self._emit("close", e.code, e.reason)
+        except ConnectionClosed:
+            code = ws.close_code or 1006
+            reason = ws.close_reason or ""
+            self._emit("close", code, reason)
         except asyncio.CancelledError:
             return
         except Exception as e:

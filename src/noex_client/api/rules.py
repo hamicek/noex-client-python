@@ -23,7 +23,7 @@ class RulesAPI:
         self._send = send
         self._subscriptions = subscriptions
 
-    # ── Events ─────────────────────────────────────────────────────
+    # -- Events -----------------------------------------------------------
 
     async def emit(
         self,
@@ -40,13 +40,17 @@ class RulesAPI:
             payload["correlationId"] = correlation_id
             if causation_id is not None:
                 payload["causationId"] = causation_id
-        return await self._send("rules.emit", payload)
+        result: dict[str, Any] = await self._send("rules.emit", payload)
+        return result
 
-    # ── Facts ──────────────────────────────────────────────────────
+    # -- Facts ------------------------------------------------------------
 
     async def set_fact(self, key: str, value: Any) -> dict[str, Any]:
         """Set a fact value."""
-        return await self._send("rules.setFact", {"key": key, "value": value})
+        result: dict[str, Any] = await self._send(
+            "rules.setFact", {"key": key, "value": value}
+        )
+        return result
 
     async def get_fact(self, key: str) -> Any:
         """Get a fact value. Returns ``None`` if not found."""
@@ -55,17 +59,22 @@ class RulesAPI:
     async def delete_fact(self, key: str) -> bool:
         """Delete a fact. Returns ``True`` if the fact existed."""
         result = await self._send("rules.deleteFact", {"key": key})
-        return result["deleted"]
+        deleted: bool = result["deleted"]
+        return deleted
 
     async def query_facts(self, pattern: str) -> list[dict[str, Any]]:
         """Query facts matching a glob pattern."""
-        return await self._send("rules.queryFacts", {"pattern": pattern})
+        result: list[dict[str, Any]] = await self._send(
+            "rules.queryFacts", {"pattern": pattern}
+        )
+        return result
 
     async def get_all_facts(self) -> list[dict[str, Any]]:
         """Return all facts."""
-        return await self._send("rules.getAllFacts", {})
+        result: list[dict[str, Any]] = await self._send("rules.getAllFacts", {})
+        return result
 
-    # ── Subscriptions ──────────────────────────────────────────────
+    # -- Subscriptions ----------------------------------------------------
 
     async def subscribe(
         self,
@@ -112,49 +121,70 @@ class RulesAPI:
         self._subscriptions.unregister(subscription_id)
         await self._send("rules.unsubscribe", {"subscriptionId": subscription_id})
 
-    # ── Admin ──────────────────────────────────────────────────────
+    # -- Admin ------------------------------------------------------------
 
     async def register_rule(self, rule: dict[str, Any]) -> dict[str, Any]:
         """Register a new rule."""
-        return await self._send("rules.registerRule", {"rule": rule})
+        result: dict[str, Any] = await self._send(
+            "rules.registerRule", {"rule": rule}
+        )
+        return result
 
     async def unregister_rule(self, rule_id: str) -> dict[str, Any]:
         """Unregister a rule by ID."""
-        return await self._send("rules.unregisterRule", {"ruleId": rule_id})
+        result: dict[str, Any] = await self._send(
+            "rules.unregisterRule", {"ruleId": rule_id}
+        )
+        return result
 
     async def update_rule(
         self, rule_id: str, updates: dict[str, Any]
     ) -> dict[str, Any]:
         """Update a rule."""
-        return await self._send(
+        result: dict[str, Any] = await self._send(
             "rules.updateRule", {"ruleId": rule_id, "updates": updates}
         )
+        return result
 
     async def enable_rule(self, rule_id: str) -> dict[str, Any]:
         """Enable a rule."""
-        return await self._send("rules.enableRule", {"ruleId": rule_id})
+        result: dict[str, Any] = await self._send(
+            "rules.enableRule", {"ruleId": rule_id}
+        )
+        return result
 
     async def disable_rule(self, rule_id: str) -> dict[str, Any]:
         """Disable a rule."""
-        return await self._send("rules.disableRule", {"ruleId": rule_id})
+        result: dict[str, Any] = await self._send(
+            "rules.disableRule", {"ruleId": rule_id}
+        )
+        return result
 
     async def get_rule(self, rule_id: str) -> dict[str, Any]:
         """Get a rule by ID."""
-        return await self._send("rules.getRule", {"ruleId": rule_id})
+        result: dict[str, Any] = await self._send(
+            "rules.getRule", {"ruleId": rule_id}
+        )
+        return result
 
     async def get_rules(self) -> dict[str, Any]:
         """List all registered rules."""
-        return await self._send("rules.getRules", {})
+        result: dict[str, Any] = await self._send("rules.getRules", {})
+        return result
 
     async def validate_rule(self, rule: dict[str, Any]) -> dict[str, Any]:
         """Validate a rule definition without registering it."""
-        return await self._send("rules.validateRule", {"rule": rule})
+        result: dict[str, Any] = await self._send(
+            "rules.validateRule", {"rule": rule}
+        )
+        return result
 
-    # ── Stats ──────────────────────────────────────────────────────
+    # -- Stats ------------------------------------------------------------
 
     async def stats(self) -> dict[str, Any]:
         """Return rules engine statistics."""
-        return await self._send("rules.stats", {})
+        result: dict[str, Any] = await self._send("rules.stats", {})
+        return result
 
 
 def _fire_and_forget(coro: Any) -> None:

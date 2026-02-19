@@ -27,7 +27,7 @@ class StoreAPI:
     def bucket(self, name: str) -> BucketAPI:
         return BucketAPI(name, self._send)
 
-    # ── Subscriptions ──────────────────────────────────────────────
+    # -- Subscriptions ----------------------------------------------------
 
     async def subscribe(
         self,
@@ -84,7 +84,7 @@ class StoreAPI:
         self._subscriptions.unregister(subscription_id)
         await self._send("store.unsubscribe", {"subscriptionId": subscription_id})
 
-    # ── Transactions ───────────────────────────────────────────────
+    # -- Transactions -----------------------------------------------------
 
     async def transaction(
         self, operations: list[dict[str, Any]]
@@ -94,46 +94,70 @@ class StoreAPI:
         Each operation is a dict with at least ``op`` and ``bucket`` keys.
         Returns a dict with a ``results`` list containing per-operation outcomes.
         """
-        return await self._send("store.transaction", {"operations": operations})
+        result: dict[str, Any] = await self._send(
+            "store.transaction", {"operations": operations}
+        )
+        return result
 
-    # ── Admin — Bucket Management ──────────────────────────────────
+    # -- Admin — Bucket Management ----------------------------------------
 
     async def define_bucket(
         self, name: str, config: dict[str, Any]
     ) -> dict[str, Any]:
-        return await self._send("store.defineBucket", {"name": name, "config": config})
+        result: dict[str, Any] = await self._send(
+            "store.defineBucket", {"name": name, "config": config}
+        )
+        return result
 
     async def drop_bucket(self, name: str) -> dict[str, Any]:
-        return await self._send("store.dropBucket", {"name": name})
+        result: dict[str, Any] = await self._send(
+            "store.dropBucket", {"name": name}
+        )
+        return result
 
     async def update_bucket(
         self, name: str, updates: dict[str, Any]
     ) -> dict[str, Any]:
-        return await self._send("store.updateBucket", {"name": name, "updates": updates})
+        result: dict[str, Any] = await self._send(
+            "store.updateBucket", {"name": name, "updates": updates}
+        )
+        return result
 
     async def get_bucket_schema(self, name: str) -> dict[str, Any]:
-        return await self._send("store.getBucketSchema", {"name": name})
+        result: dict[str, Any] = await self._send(
+            "store.getBucketSchema", {"name": name}
+        )
+        return result
 
-    # ── Admin — Query Management ──────────────────────────────────
+    # -- Admin — Query Management -----------------------------------------
 
     async def define_query(
         self, name: str, config: dict[str, Any]
     ) -> dict[str, Any]:
-        return await self._send("store.defineQuery", {"name": name, "config": config})
+        result: dict[str, Any] = await self._send(
+            "store.defineQuery", {"name": name, "config": config}
+        )
+        return result
 
     async def undefine_query(self, name: str) -> dict[str, Any]:
-        return await self._send("store.undefineQuery", {"name": name})
+        result: dict[str, Any] = await self._send(
+            "store.undefineQuery", {"name": name}
+        )
+        return result
 
     async def list_queries(self) -> dict[str, Any]:
-        return await self._send("store.listQueries", {})
+        result: dict[str, Any] = await self._send("store.listQueries", {})
+        return result
 
-    # ── Metadata ──────────────────────────────────────────────────
+    # -- Metadata ---------------------------------------------------------
 
     async def buckets(self) -> dict[str, Any]:
-        return await self._send("store.buckets", {})
+        result: dict[str, Any] = await self._send("store.buckets", {})
+        return result
 
     async def stats(self) -> dict[str, Any]:
-        return await self._send("store.stats", {})
+        result: dict[str, Any] = await self._send("store.stats", {})
+        return result
 
 
 def _fire_and_forget(coro: Any) -> None:
