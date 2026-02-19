@@ -114,3 +114,18 @@ async def client(test_server: ServerInfo) -> AsyncIterator[NoexClient]:
     yield c
     if c.is_connected:
         await c.disconnect()
+
+
+@pytest_asyncio.fixture
+async def client_with_buckets(
+    test_server_with_buckets: ServerInfo,
+) -> AsyncIterator[NoexClient]:
+    """Fixture that creates a connected NoexClient with pre-defined buckets."""
+    c = NoexClient(
+        test_server_with_buckets.url,
+        ClientOptions(reconnect=False),
+    )
+    await c.connect()
+    yield c
+    if c.is_connected:
+        await c.disconnect()

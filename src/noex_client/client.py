@@ -5,6 +5,7 @@ import json
 import logging
 from typing import Any, Callable
 
+from .api.store import StoreAPI
 from .config import (
     ClientOptions,
     ConnectionState,
@@ -59,6 +60,8 @@ class NoexClient:
         self._reconnect_abort: asyncio.Event | None = None
         self._session_token: str | None = None
 
+        self._store = StoreAPI(self.request)
+
         self._setup_transport_listeners()
 
     # ── State ─────────────────────────────────────────────────────
@@ -74,6 +77,10 @@ class NoexClient:
     @property
     def is_connected(self) -> bool:
         return self._state == "connected"
+
+    @property
+    def store(self) -> StoreAPI:
+        return self._store
 
     # ── Lifecycle ─────────────────────────────────────────────────
 

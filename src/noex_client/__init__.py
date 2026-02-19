@@ -1,3 +1,5 @@
+from .api.bucket import BucketAPI
+from .api.store import StoreAPI
 from .client import NoexClient
 from .config import (
     AuthOptions,
@@ -16,6 +18,8 @@ from .subscription.subscription_manager import (
 
 __all__ = [
     "NoexClient",
+    "StoreAPI",
+    "BucketAPI",
     "ClientOptions",
     "ReconnectOptions",
     "AuthOptions",
