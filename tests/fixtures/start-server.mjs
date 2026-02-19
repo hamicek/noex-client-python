@@ -93,7 +93,7 @@ const server = await NoexServer.start({
   rules: engine,
   auth,
   audit,
-  port: 0,
+  port: config.port || 0,
   host: '127.0.0.1',
 });
 

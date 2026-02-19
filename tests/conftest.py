@@ -30,6 +30,7 @@ async def start_test_server(
     auth: dict[str, Any] | None = None,
     audit: dict[str, Any] | None = None,
     rules: bool | None = None,
+    port: int | None = None,
 ) -> ServerInfo:
     """Start a noex-server subprocess, wait for the URL output, and return it."""
     config: dict[str, Any] = {}
@@ -43,6 +44,8 @@ async def start_test_server(
         config["audit"] = audit
     if rules is not None:
         config["rules"] = rules
+    if port is not None:
+        config["port"] = port
 
     config_json = json.dumps(config)
 
