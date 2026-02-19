@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@hamicek/noex": "file:../../../noex",
+    "@hamicek/noex-store": "file:../../../noex-store",
+    "@hamicek/noex-server": "file:../../../noex-server",
+    "@hamicek/noex-rules": "file:../../../noex-rules"
+  }
+}
