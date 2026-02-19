@@ -27,6 +27,9 @@ async def start_test_server(
     *,
     buckets: list[dict[str, Any]] | None = None,
     queries: list[dict[str, Any]] | None = None,
+    auth: dict[str, Any] | None = None,
+    audit: dict[str, Any] | None = None,
+    rules: bool | None = None,
 ) -> ServerInfo:
     """Start a noex-server subprocess, wait for the URL output, and return it."""
     config: dict[str, Any] = {}
@@ -34,6 +37,12 @@ async def start_test_server(
         config["buckets"] = buckets
     if queries:
         config["queries"] = queries
+    if auth is not None:
+        config["auth"] = auth
+    if audit is not None:
+        config["audit"] = audit
+    if rules is not None:
+        config["rules"] = rules
 
     config_json = json.dumps(config)
 
@@ -170,3 +179,85 @@ async def client_with_queries(
     yield c
     if c.is_connected:
         await c.disconnect()
+
+
+# ── Auth fixtures ────────────────────────────────────────────────────
+
+STANDARD_SESSIONS = {
+    "admin": {"userId": "admin-1", "roles": ["admin"]},
+    "writer": {"userId": "writer-1", "roles": ["writer"]},
+    "reader": {"userId": "reader-1", "roles": ["reader"]},
+}
+
+IDENTITY_SECRET = "test-identity-secret"
+
+
+@pytest_asyncio.fixture
+async def test_server_with_auth() -> AsyncIterator[ServerInfo]:
+    """Fixture with session-based auth configured."""
+    info = await start_test_server(
+        auth={"sessions": STANDARD_SESSIONS},
+    )
+    yield info
+    await stop_test_server(info)
+
+
+@pytest_asyncio.fixture
+async def test_server_with_auth_and_buckets() -> AsyncIterator[ServerInfo]:
+    """Fixture with session-based auth and pre-defined buckets."""
+    info = await start_test_server(
+        auth={"sessions": STANDARD_SESSIONS},
+        buckets=[
+            {"name": "items", "schema": {"value": {"type": "number", "required": True}}},
+            {"name": "users", "schema": {"name": {"type": "string", "required": True}}},
+        ],
+    )
+    yield info
+    await stop_test_server(info)
+
+
+@pytest_asyncio.fixture
+async def test_server_with_identity() -> AsyncIterator[ServerInfo]:
+    """Fixture with built-in identity auth configured."""
+    info = await start_test_server(
+        auth={"builtIn": True, "adminSecret": IDENTITY_SECRET},
+    )
+    yield info
+    await stop_test_server(info)
+
+
+@pytest_asyncio.fixture
+async def test_server_with_audit() -> AsyncIterator[ServerInfo]:
+    """Fixture with auth + audit configured."""
+    info = await start_test_server(
+        auth={"sessions": STANDARD_SESSIONS},
+        audit={},
+    )
+    yield info
+    await stop_test_server(info)
+
+
+@pytest_asyncio.fixture
+async def test_server_with_procedures() -> AsyncIterator[ServerInfo]:
+    """Fixture with auth + buckets for procedure tests."""
+    info = await start_test_server(
+        auth={"sessions": STANDARD_SESSIONS},
+        buckets=[
+            {
+                "name": "orders",
+                "schema": {
+                    "status": {"type": "string"},
+                    "total": {"type": "number"},
+                },
+            },
+            {
+                "name": "items",
+                "schema": {
+                    "orderId": {"type": "string", "required": True},
+                    "price": {"type": "number", "required": True},
+                },
+            },
+        ],
+    )
+    yield info
+    await stop_test_server(info)

@@ -96,6 +96,45 @@ class StoreAPI:
         """
         return await self._send("store.transaction", {"operations": operations})
 
+    # ── Admin — Bucket Management ──────────────────────────────────
+
+    async def define_bucket(
+        self, name: str, config: dict[str, Any]
+    ) -> dict[str, Any]:
+        return await self._send("store.defineBucket", {"name": name, "config": config})
+
+    async def drop_bucket(self, name: str) -> dict[str, Any]:
+        return await self._send("store.dropBucket", {"name": name})
+
+    async def update_bucket(
+        self, name: str, updates: dict[str, Any]
+    ) -> dict[str, Any]:
+        return await self._send("store.updateBucket", {"name": name, "updates": updates})
+
+    async def get_bucket_schema(self, name: str) -> dict[str, Any]:
+        return await self._send("store.getBucketSchema", {"name": name})
+
+    # ── Admin — Query Management ──────────────────────────────────
+
+    async def define_query(
+        self, name: str, config: dict[str, Any]
+    ) -> dict[str, Any]:
+        return await self._send("store.defineQuery", {"name": name, "config": config})
+
+    async def undefine_query(self, name: str) -> dict[str, Any]:
+        return await self._send("store.undefineQuery", {"name": name})
+
+    async def list_queries(self) -> dict[str, Any]:
+        return await self._send("store.listQueries", {})
+
+    # ── Metadata ──────────────────────────────────────────────────
+
+    async def buckets(self) -> dict[str, Any]:
+        return await self._send("store.buckets", {})
+
+    async def stats(self) -> dict[str, Any]:
+        return await self._send("store.stats", {})
+
 
 def _fire_and_forget(coro: Any) -> None:
     """Schedule a coroutine without awaiting it, suppressing errors."""

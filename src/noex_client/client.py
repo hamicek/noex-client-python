@@ -5,6 +5,10 @@ import json
 import logging
 from typing import Any, Callable
 
+from .api.audit import AuditAPI
+from .api.auth import AuthAPI
+from .api.identity import IdentityAPI
+from .api.procedures import ProceduresAPI
 from .api.rules import RulesAPI
 from .api.store import StoreAPI
 from .config import (
@@ -63,6 +67,10 @@ class NoexClient:
 
         self._store = StoreAPI(self.request, self._subscription_manager)
         self._rules = RulesAPI(self.request, self._subscription_manager)
+        self._auth = AuthAPI(self.request)
+        self._audit = AuditAPI(self.request)
+        self._procedures = ProceduresAPI(self.request)
+        self._identity = IdentityAPI(self.request)
 
         self._setup_transport_listeners()
 
@@ -87,6 +95,22 @@ class NoexClient:
     @property
     def rules(self) -> RulesAPI:
         return self._rules
+
+    @property
+    def auth(self) -> AuthAPI:
+        return self._auth
+
+    @property
+    def audit(self) -> AuditAPI:
+        return self._audit
+
+    @property
+    def procedures(self) -> ProceduresAPI:
+        return self._procedures
+
+    @property
+    def identity(self) -> IdentityAPI:
+        return self._identity
 
     # ── Lifecycle ─────────────────────────────────────────────────
 

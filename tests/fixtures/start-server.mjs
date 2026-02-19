@@ -41,9 +41,58 @@ if (config.rules !== false) {
   engine = await RuleEngine.start({ name: `py-test-rules-${Date.now()}` });
 }
 
+// ── Auth config ──────────────────────────────────────────────────
+
+let auth = undefined;
+
+if (config.auth) {
+  if (config.auth.builtIn) {
+    // Built-in identity auth
+    auth = {
+      builtIn: true,
+      adminSecret: config.auth.adminSecret || 'test-secret',
+    };
+  } else if (config.auth.sessions) {
+    // Session-based auth with static token → session mapping
+    const sessions = config.auth.sessions;
+    const authConfig = {
+      validate: async (token) => sessions[token] ?? null,
+    };
+
+    if (config.auth.required === false) {
+      authConfig.required = false;
+    }
+
+    if (config.auth.permissions) {
+      const allowedRoles = config.auth.permissions.checkRoles;
+      authConfig.permissions = {
+        check: (session, _operation, _resource) => {
+          return session.roles.some((r) => allowedRoles.includes(r));
+        },
+      };
+    }
+
+    auth = authConfig;
+  }
+}
+
+// ── Audit config ─────────────────────────────────────────────────
+
+let audit = undefined;
+if (config.audit !== undefined) {
+  audit = {};
+  if (config.audit.tiers) {
+    audit.tiers = config.audit.tiers;
+  }
+}
+
+// ── Start server ─────────────────────────────────────────────────
+
 const server = await NoexServer.start({
   store,
   rules: engine,
+  auth,
+  audit,
   port: 0,
   host: '127.0.0.1',
 });
