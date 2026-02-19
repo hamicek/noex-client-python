@@ -26,11 +26,14 @@ class ServerInfo:
 async def start_test_server(
     *,
     buckets: list[dict[str, Any]] | None = None,
+    queries: list[dict[str, Any]] | None = None,
 ) -> ServerInfo:
     """Start a noex-server subprocess, wait for the URL output, and return it."""
     config: dict[str, Any] = {}
     if buckets:
         config["buckets"] = buckets
+    if queries:
+        config["queries"] = queries
 
     config_json = json.dumps(config)
 
@@ -123,6 +126,44 @@ async def client_with_buckets(
     """Fixture that creates a connected NoexClient with pre-defined buckets."""
     c = NoexClient(
         test_server_with_buckets.url,
+        ClientOptions(reconnect=False),
+    )
+    await c.connect()
+    yield c
+    if c.is_connected:
+        await c.disconnect()
+
+
+@pytest_asyncio.fixture
+async def test_server_with_queries() -> AsyncIterator[ServerInfo]:
+    """Fixture with pre-defined buckets and reactive queries for subscription tests."""
+    info = await start_test_server(
+        buckets=[
+            {
+                "name": "users",
+                "schema": {
+                    "name": {"type": "string", "required": True},
+                    "role": {"type": "string", "default": "user"},
+                },
+            },
+        ],
+        queries=[
+            {"name": "all-users", "type": "all", "bucket": "users"},
+            {"name": "users-by-role", "type": "where", "bucket": "users", "field": "role"},
+            {"name": "user-count", "type": "count", "bucket": "users"},
+        ],
+    )
+    yield info
+    await stop_test_server(info)
+
+
+@pytest_asyncio.fixture
+async def client_with_queries(
+    test_server_with_queries: ServerInfo,
+) -> AsyncIterator[NoexClient]:
+    """Fixture that creates a connected NoexClient with buckets and queries."""
+    c = NoexClient(
+        test_server_with_queries.url,
         ClientOptions(reconnect=False),
     )
     await c.connect()

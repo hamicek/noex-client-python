@@ -60,7 +60,7 @@ class NoexClient:
         self._reconnect_abort: asyncio.Event | None = None
         self._session_token: str | None = None
 
-        self._store = StoreAPI(self.request)
+        self._store = StoreAPI(self.request, self._subscription_manager)
 
         self._setup_transport_listeners()
 

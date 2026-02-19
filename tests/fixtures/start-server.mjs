@@ -17,6 +17,24 @@ if (config.buckets) {
   }
 }
 
+if (config.queries) {
+  for (const q of config.queries) {
+    switch (q.type) {
+      case 'all':
+        store.defineQuery(q.name, async (ctx) => ctx.bucket(q.bucket).all());
+        break;
+      case 'where':
+        store.defineQuery(q.name, async (ctx, params) =>
+          ctx.bucket(q.bucket).where({ [q.field]: params[q.field] }),
+        );
+        break;
+      case 'count':
+        store.defineQuery(q.name, async (ctx) => ctx.bucket(q.bucket).count());
+        break;
+    }
+  }
+}
+
 const server = await NoexServer.start({
   store,
   port: 0,
