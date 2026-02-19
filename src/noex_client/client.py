@@ -5,6 +5,7 @@ import json
 import logging
 from typing import Any, Callable
 
+from .api.rules import RulesAPI
 from .api.store import StoreAPI
 from .config import (
     ClientOptions,
@@ -61,6 +62,7 @@ class NoexClient:
         self._session_token: str | None = None
 
         self._store = StoreAPI(self.request, self._subscription_manager)
+        self._rules = RulesAPI(self.request, self._subscription_manager)
 
         self._setup_transport_listeners()
 
@@ -81,6 +83,10 @@ class NoexClient:
     @property
     def store(self) -> StoreAPI:
         return self._store
+
+    @property
+    def rules(self) -> RulesAPI:
+        return self._rules
 
     # ── Lifecycle ─────────────────────────────────────────────────
 

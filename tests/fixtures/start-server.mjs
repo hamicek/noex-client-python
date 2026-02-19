@@ -1,5 +1,6 @@
 import { Store } from '@hamicek/noex-store';
 import { NoexServer } from '@hamicek/noex-server';
+import { RuleEngine } from '@hamicek/noex-rules';
 
 const config = JSON.parse(process.argv[2] || '{}');
 
@@ -35,8 +36,14 @@ if (config.queries) {
   }
 }
 
+let engine = undefined;
+if (config.rules !== false) {
+  engine = await RuleEngine.start({ name: `py-test-rules-${Date.now()}` });
+}
+
 const server = await NoexServer.start({
   store,
+  rules: engine,
   port: 0,
   host: '127.0.0.1',
 });
@@ -47,12 +54,14 @@ console.log(`ws://127.0.0.1:${server.port}`);
 // Keep running until killed
 process.on('SIGTERM', async () => {
   if (server.isRunning) await server.stop();
+  if (engine) await engine.stop();
   await store.stop();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
   if (server.isRunning) await server.stop();
+  if (engine) await engine.stop();
   await store.stop();
   process.exit(0);
 });

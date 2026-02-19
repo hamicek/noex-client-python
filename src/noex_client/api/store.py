@@ -84,6 +84,18 @@ class StoreAPI:
         self._subscriptions.unregister(subscription_id)
         await self._send("store.unsubscribe", {"subscriptionId": subscription_id})
 
+    # ── Transactions ───────────────────────────────────────────────
+
+    async def transaction(
+        self, operations: list[dict[str, Any]]
+    ) -> dict[str, Any]:
+        """Execute multiple operations atomically.
+
+        Each operation is a dict with at least ``op`` and ``bucket`` keys.
+        Returns a dict with a ``results`` list containing per-operation outcomes.
+        """
+        return await self._send("store.transaction", {"operations": operations})
+
 
 def _fire_and_forget(coro: Any) -> None:
     """Schedule a coroutine without awaiting it, suppressing errors."""

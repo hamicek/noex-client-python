@@ -1,4 +1,5 @@
 from .api.bucket import BucketAPI
+from .api.rules import RulesAPI
 from .api.store import StoreAPI
 from .client import NoexClient
 from .config import (
@@ -20,6 +21,7 @@ __all__ = [
     "NoexClient",
     "StoreAPI",
     "BucketAPI",
+    "RulesAPI",
     "ClientOptions",
     "ReconnectOptions",
     "AuthOptions",
