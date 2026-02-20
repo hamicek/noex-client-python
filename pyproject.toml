@@ -6,8 +6,20 @@ build-backend = "hatchling.build"
 name = "noex-client"
 version = "0.1.0"
 description = "Python client SDK for noex-server"
+readme = "README.md"
 license = "MIT"
 requires-python = ">=3.11"
+authors = [{name = "Miroslav Halabrin"}]
+keywords = ["noex", "websocket", "real-time", "async", "client"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Framework :: AsyncIO",
+]
 dependencies = [
     "websockets>=13.0",
 ]
@@ -18,6 +30,11 @@ dev = [
     "pytest-asyncio>=0.24",
     "mypy>=1.10",
 ]
+
+[project.urls]
+Homepage = "https://github.com/hamicek/noex-client-python"
+Repository = "https://github.com/hamicek/noex-client-python"
+Issues = "https://github.com/hamicek/noex-client-python/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/noex_client"]
