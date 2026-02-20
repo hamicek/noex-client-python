@@ -28,6 +28,14 @@ logger = logging.getLogger("noex_client")
 
 Unsubscribe = Callable[[], None]
 
+# Server-sent close codes that indicate a permanent rejection.
+# Reconnecting would just result in the same close, so we skip it.
+_NON_RETRYABLE_CLOSE_CODES = frozenset({
+    1003,  # Unsupported Data (binary frame rejection)
+    4002,  # session_revoked
+    4003,  # too_many_connections
+})
+
 
 class NoexClient:
     """Async Python client for noex-server."""
@@ -213,6 +221,11 @@ class NoexClient:
             self._request_manager.reject_all(
                 DisconnectedError("Connection lost")
             )
+
+        if code in _NON_RETRYABLE_CLOSE_CODES:
+            self._state = "disconnected"
+            self._emit_event("disconnected", reason)
+            return
 
         if (
             not self._intentional_disconnect
