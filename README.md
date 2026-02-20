@@ -28,7 +28,7 @@ Requires Python >= 3.11.
 This client connects to a running [noex-server](https://www.npmjs.com/package/@hamicek/noex-server) instance. The server runs on Node.js and is installed separately:
 
 ```bash
-npm install @hamicek/noex-server @hamicek/noex-store
+npm install @hamicek/noex-server @hamicek/noex-store @hamicek/noex
 ```
 
 Minimal server setup (TypeScript/Node.js):
@@ -265,7 +265,7 @@ await store.drop_bucket("users")
 #### Admin -- Query Management
 
 ```python
-await store.define_query("all-users", {"type": "all", "bucket": "users"})
+await store.define_query("all-users", {"bucket": "users"})
 queries = await store.list_queries()
 await store.undefine_query("all-users")
 ```
