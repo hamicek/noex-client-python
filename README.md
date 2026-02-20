@@ -521,6 +521,16 @@ Calling `disconnect()` at any point stops the reconnect loop immediately.
 
 ---
 
+## Production
+
+In production, always use `wss://` (WebSocket over TLS) instead of plain `ws://`. The noex-server itself does not terminate TLS -- place it behind a reverse proxy (nginx, Caddy) that handles TLS and forwards traffic to the server.
+
+```python
+client = NoexClient("wss://api.example.com")
+```
+
+---
+
 ## License
 
 MIT
