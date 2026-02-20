@@ -23,6 +23,26 @@ pip install noex-client
 
 Requires Python >= 3.11.
 
+## Prerequisites
+
+This client connects to a running [noex-server](https://www.npmjs.com/package/@hamicek/noex-server) instance. The server runs on Node.js and is installed separately:
+
+```bash
+npm install @hamicek/noex-server @hamicek/noex-store
+```
+
+Minimal server setup (TypeScript/Node.js):
+
+```typescript
+import { NoexServer } from '@hamicek/noex-server';
+import { Store } from '@hamicek/noex-store';
+
+const store = await Store.start();
+const server = await NoexServer.start({ store, port: 8080 });
+```
+
+For the full server documentation, see the [noex-server README](https://github.com/hamicek/noex-server).
+
 ## Quick Start
 
 ```python
