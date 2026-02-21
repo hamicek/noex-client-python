@@ -30,6 +30,7 @@ async def start_test_server(
     auth: dict[str, Any] | None = None,
     audit: dict[str, Any] | None = None,
     rules: bool | None = None,
+    logic: bool | None = None,
     port: int | None = None,
 ) -> ServerInfo:
     """Start a noex-server subprocess, wait for the URL output, and return it."""
@@ -44,6 +45,8 @@ async def start_test_server(
         config["audit"] = audit
     if rules is not None:
         config["rules"] = rules
+    if logic is not None:
+        config["logic"] = logic
     if port is not None:
         config["port"] = port
 
@@ -264,3 +267,86 @@ async def test_server_with_procedures() -> AsyncIterator[ServerInfo]:
     )
     yield info
     await stop_test_server(info)
+
+
+# ── Logic fixtures ──────────────────────────────────────────────────
+
+
+@pytest_asyncio.fixture
+async def test_server_with_logic() -> AsyncIterator[ServerInfo]:
+    """Fixture with logic engine and buckets for logic tests."""
+    info = await start_test_server(
+        logic=True,
+        buckets=[
+            {
+                "name": "items",
+                "schema": {
+                    "name": {"type": "string"},
+                    "qty": {"type": "number"},
+                    "price": {"type": "number"},
+                },
+            },
+            {
+                "name": "accounts",
+                "schema": {
+                    "name": {"type": "string"},
+                    "balance": {"type": "number"},
+                },
+            },
+            {
+                "name": "customers",
+                "schema": {
+                    "name": {"type": "string"},
+                },
+            },
+            {
+                "name": "invoices",
+                "schema": {
+                    "customerId": {"type": "string"},
+                    "total": {"type": "number"},
+                    "issueDate": {"type": "string"},
+                    "dueDate": {"type": "string"},
+                },
+            },
+        ],
+    )
+    yield info
+    await stop_test_server(info)
+
+
+@pytest_asyncio.fixture
+async def client_with_logic(
+    test_server_with_logic: ServerInfo,
+) -> AsyncIterator[NoexClient]:
+    """Fixture that creates a connected NoexClient with logic engine."""
+    c = NoexClient(
+        test_server_with_logic.url,
+        ClientOptions(reconnect=False),
+    )
+    await c.connect()
+    yield c
+    if c.is_connected:
+        await c.disconnect()
+
+
+@pytest_asyncio.fixture
+async def test_server_no_logic() -> AsyncIterator[ServerInfo]:
+    """Fixture with logic explicitly disabled."""
+    info = await start_test_server(logic=False)
+    yield info
+    await stop_test_server(info)
+
+
+@pytest_asyncio.fixture
+async def client_no_logic(
+    test_server_no_logic: ServerInfo,
+) -> AsyncIterator[NoexClient]:
+    """Fixture that creates a connected NoexClient without logic engine."""
+    c = NoexClient(
+        test_server_no_logic.url,
+        ClientOptions(reconnect=False),
+    )
+    await c.connect()
+    yield c
+    if c.is_connected:
+        await c.disconnect()

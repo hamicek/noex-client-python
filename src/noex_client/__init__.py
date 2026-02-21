@@ -2,9 +2,11 @@ from .api.audit import AuditAPI
 from .api.auth import AuthAPI
 from .api.bucket import BucketAPI
 from .api.identity import IdentityAPI
+from .api.logic import LogicAPI
 from .api.procedures import ProceduresAPI
 from .api.rules import RulesAPI
 from .api.store import StoreAPI
+from .logic import expr
 from .client import NoexClient
 from .config import (
     AuthOptions,
@@ -26,6 +28,7 @@ __all__ = [
     "StoreAPI",
     "BucketAPI",
     "RulesAPI",
+    "LogicAPI",
     "AuthAPI",
     "AuditAPI",
     "ProceduresAPI",
@@ -39,6 +42,7 @@ __all__ = [
     "NoexClientError",
     "RequestTimeoutError",
     "DisconnectedError",
+    "expr",
     "SubscriptionManager",
     "SubscriptionEntry",
     "ResubscribeInfo",

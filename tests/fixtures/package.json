@@ -5,6 +5,7 @@
     "@hamicek/noex": "file:../../../noex",
     "@hamicek/noex-store": "file:../../../noex-store",
     "@hamicek/noex-server": "file:../../../noex-server",
-    "@hamicek/noex-rules": "file:../../../noex-rules"
+    "@hamicek/noex-rules": "file:../../../noex-rules",
+    "@hamicek/noex-logic": "file:../../../noex-logic"
   }
 }

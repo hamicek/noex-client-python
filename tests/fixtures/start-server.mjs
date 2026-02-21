@@ -1,7 +1,6 @@
 import { Store } from '@hamicek/noex-store';
 import { NoexServer } from '@hamicek/noex-server';
 import { RuleEngine } from '@hamicek/noex-rules';
-
 const config = JSON.parse(process.argv[2] || '{}');
 
 const store = await Store.start({ name: `py-test-${Date.now()}` });
@@ -39,6 +38,12 @@ if (config.queries) {
 let engine = undefined;
 if (config.rules !== false) {
   engine = await RuleEngine.start({ name: `py-test-rules-${Date.now()}` });
+}
+
+let logic = undefined;
+if (config.logic === true) {
+  const { Logic } = await import('@hamicek/noex-logic');
+  logic = await Logic.start({ store });
 }
 
 // ── Auth config ──────────────────────────────────────────────────
@@ -91,6 +96,7 @@ if (config.audit !== undefined) {
 const server = await NoexServer.start({
   store,
   rules: engine,
+  logic,
   auth,
   audit,
   port: config.port || 0,
@@ -103,6 +109,7 @@ console.log(`ws://127.0.0.1:${server.port}`);
 // Keep running until killed
 process.on('SIGTERM', async () => {
   if (server.isRunning) await server.stop();
+  if (logic) await logic.destroy();
   if (engine) await engine.stop();
   await store.stop();
   process.exit(0);
@@ -110,6 +117,7 @@ process.on('SIGTERM', async () => {
 
 process.on('SIGINT', async () => {
   if (server.isRunning) await server.stop();
+  if (logic) await logic.destroy();
   if (engine) await engine.stop();
   await store.stop();
   process.exit(0);

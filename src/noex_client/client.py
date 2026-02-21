@@ -8,6 +8,7 @@ from typing import Any, Callable
 from .api.audit import AuditAPI
 from .api.auth import AuthAPI
 from .api.identity import IdentityAPI
+from .api.logic import LogicAPI
 from .api.procedures import ProceduresAPI
 from .api.rules import RulesAPI
 from .api.store import StoreAPI
@@ -75,6 +76,7 @@ class NoexClient:
 
         self._store = StoreAPI(self.request, self._subscription_manager)
         self._rules = RulesAPI(self.request, self._subscription_manager)
+        self._logic = LogicAPI(self.request, self._subscription_manager)
         self._auth = AuthAPI(self.request)
         self._audit = AuditAPI(self.request)
         self._procedures = ProceduresAPI(self.request)
@@ -103,6 +105,10 @@ class NoexClient:
     @property
     def rules(self) -> RulesAPI:
         return self._rules
+
+    @property
+    def logic(self) -> LogicAPI:
+        return self._logic
 
     @property
     def auth(self) -> AuthAPI:
